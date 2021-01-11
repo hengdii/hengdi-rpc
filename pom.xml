@@ -6,7 +6,14 @@
 
     <groupId>github.hengdi</groupId>
     <artifactId>hengdi-rpc</artifactId>
+    <packaging>pom</packaging>
     <version>1.0.0-SNAPSHOT</version>
 
+    <modules>
+        <module>example-client</module>
+        <module>example-server</module>
+        <module>rpc-framework-common</module>
+        <module>rpc-framework-simple</module>
+    </modules>
 
 </project>
