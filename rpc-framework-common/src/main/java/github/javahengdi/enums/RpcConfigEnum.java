@@ -9,8 +9,25 @@ package github.javahengdi.enums;
 
 public enum RpcConfigEnum {
 
+    /**
+     *
+     */
+    RPC_CONFIG_PATH("rpc.properties"),
 
+    /**
+     *
+     */
+    ZK_ADDRESS("rpc.zookeeper.address");
 
+    RpcConfigEnum(String propertyValue) {
+        this.propertyValue = propertyValue;
+    }
+
+    public String getPropertyValue() {
+        return propertyValue;
+    }
+
+    private final String propertyValue;
 
 
 }
