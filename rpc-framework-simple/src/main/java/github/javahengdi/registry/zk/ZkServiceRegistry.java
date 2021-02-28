@@ -28,4 +28,8 @@ public class ZkServiceRegistry implements ServiceRegistry {
         CuratorFramework zkClient = CuratorUtils.getZkClient();
         CuratorUtils.createPersistentNone(zkClient, serviePath);
     }
+
+
+
+
 }
