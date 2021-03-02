@@ -26,7 +26,7 @@ public class ZkServiceRegistry implements ServiceRegistry {
     public void registerService(String rpcServiceName, InetSocketAddress inetSocketAddress) {
         String serviePath = CuratorUtils.ZK_REGISTER_ROOT_PATH + "/" + rpcServiceName + inetSocketAddress.toString();
         CuratorFramework zkClient = CuratorUtils.getZkClient();
-        CuratorUtils.createPersistentNone(zkClient, serviePath);
+        CuratorUtils.createPersistentNode(zkClient, serviePath);
     }
 
 

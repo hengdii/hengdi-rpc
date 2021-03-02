@@ -7,6 +7,8 @@ import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.imps.CuratorFrameworkState;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 
@@ -51,7 +53,7 @@ public final class CuratorUtils {
      * @param zkClient
      * @param path
      */
-    public static void createPersistentNone(CuratorFramework zkClient, String path) {
+    public static void createPersistentNode(CuratorFramework zkClient, String path) {
         try {
             if (REGISTERED_PATH_SET.contains(path) || zkClient.checkExists().forPath(path) != null) {
                 log.info("The node is already exists. The node is :{}", path);
@@ -87,6 +89,34 @@ public final class CuratorUtils {
             e.printStackTrace();
         }
         return zkClient;
+    }
+
+    public static List<String> getChildrenNodes(CuratorFramework zkClient, String rpcServiceName) {
+        if (SERVICE_ADDRESS_MAP.containsKey(rpcServiceName)) {
+            return SERVICE_ADDRESS_MAP.get(rpcServiceName);
+        }
+        List<String> result = null;
+        String servicePath = ZK_REGISTER_ROOT_PATH + "/" + rpcServiceName;
+        try {
+            result = zkClient.getChildren().forPath(servicePath);
+            SERVICE_ADDRESS_MAP.put(rpcServiceName, result);
+            registerWatcher(rpcServiceName, zkClient);
+        } catch (Exception e) {
+            log.error("get Children nodes for path {} fail", servicePath);
+        }
+        return result;
+    }
+
+
+    private static void registerWatcher(String rpcServiceName, CuratorFramework zkClient) throws Exception {
+        String servicePath = ZK_REGISTER_ROOT_PATH + "/" + rpcServiceName;
+        PathChildrenCache pathChildrenCache = new PathChildrenCache(zkClient, servicePath, true);
+        PathChildrenCacheListener pathChildrenCacheListener = (curatorFramework, pathChildrenCacheEvent) -> {
+            List<String> serviceAddresses = curatorFramework.getChildren().forPath(servicePath);
+            SERVICE_ADDRESS_MAP.put(rpcServiceName, serviceAddresses);
+        };
+        pathChildrenCache.getListenable().addListener(pathChildrenCacheListener);
+        pathChildrenCache.start();
     }
 
 
